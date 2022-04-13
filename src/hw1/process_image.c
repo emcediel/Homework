@@ -124,61 +124,55 @@ void rgb_to_hsv(image im)
 void hsv_to_rgb(image im)
 {
     // TODO Fill this in
-    for (int i=0;i<=im.w-1;i++)
+    for (int i=0;i<im.w;i++)
     {
-        for(int j=0;j<=im.h-1;j++)
+        for(int j=0;j<im.h;j++)
         {
             float H = get_pixel(im,i,j,0)*6;
             float V = get_pixel(im,i,j,2);
             float S = get_pixel(im,i,j,1);
-            float Hi = floor(H);
+            int Hi = floor(H);
             float F = H - Hi;
             float P = V*(1-S);
             float Q = V*(1-F*S);
             float T = V*(1-(1-F)*S);
-            float R;
-            float G;
-            float B;
-            if (Hi == 0)
+            float R,G,B;
+            switch (Hi)
             {
-                R=V;
-                G=T;
-                B=P;
-            }
-            else if(Hi==1)
-            {
-                R=Q;
-                G=V;
-                B=P;
-            }
-            else if(Hi==2)
-            {
-                R=P;
-                G=V;
-                B=T;
-            }
-            else if(Hi==3)
-            {
-                R=P;
-                G=Q;
-                B=V;
-            }
-            else if(Hi==4)
-            {
-                R=T;
-                G=P;
-                B=V;
-            }
-            else
-            {
-                R=V;
-                G=P;
-                B=Q;
+                case 0:
+                    R=V;
+                    G=T;
+                    B=P;
+                    break;
+                case 1:
+                    R=Q;
+                    G=V;
+                    B=P;
+                    break;
+                case 2:
+                    R=P;
+                    G=V;
+                    B=T;
+                    break;
+                case 3:
+                    R=P;
+                    G=Q;
+                    B=V;
+                    break;
+                case 4:
+                    R=T;
+                    G=P;
+                    B=V;
+                    break;
+                case 5:
+                    R=V;
+                    G=P;
+                    B=Q;
+                    break;
             }
             set_pixel(im,i,j,0,R);
             set_pixel(im,i,j,1,G);
             set_pixel(im,i,j,2,B);
-
         }
     }
 
