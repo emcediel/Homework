@@ -181,7 +181,11 @@ make_gaussian_filter.restype = IMAGE
 convolve_image = lib.convolve_image
 convolve_image.argtypes = [IMAGE, IMAGE, c_int]
 convolve_image.restype = IMAGE
-
+##me
+colorize_sobel = lib.colorize_sobel
+colorize_sobel.argtypes = [IMAGE]
+colorize_sobel.restype = IMAGE
+##me
 ##### HOMEWORK 3
 
 harris_corner_detector = lib.harris_corner_detector

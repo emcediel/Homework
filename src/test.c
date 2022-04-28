@@ -337,7 +337,6 @@ void test_convolution(){
     image f = make_box_filter(7);
     image blur = convolve_image(im, f, 1);
     clamp_image(blur);
-
     image gt = load_image("figs/dog-box7.png");
     TEST(same_image(blur, gt, EPS));
     free_image(im);
