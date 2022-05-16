@@ -5,11 +5,15 @@
 *.pyc
 *.exe
 *.jpg
+*.png
 __pycache__/*
 obj/*
 .DS_Store
 !figs/*
 !data/*
-
+*.test
+*.tgz
+*.train
+*.tar.gz
 main
 *.csv
