@@ -80,7 +80,7 @@ class DeepCNN(nn.Module):
                 size=size//2
         self.layers=nn.ModuleList(sequence)
 
-        self.fc1 = nn.Linear(4608, 5) #size * size * prev
+        self.fc1 = nn.Linear(size * size * prev, 5) 
 
     def forward(self, x):
         """
