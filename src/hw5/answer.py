@@ -39,7 +39,10 @@ class SimpleCNN(nn.Module):
 
         TODO: fill this forward function for data flow
         """
-        pass
+        x=self.pool(F.relu(self.conv_layer(x)))
+        x=torch.flatten(x, 1) # flatten all dimensions except batch
+        x = self.fc1(x)
+        return x
 
 
 # %%
@@ -51,7 +54,7 @@ Question 3
 TODO: Add color normalization to the transformer. For simplicity, let us use 0.5 for mean
       and 0.5 for standard deviation for each color channel.
 """
-norm_transformer = transforms.Compose([])
+norm_transformer = transforms.Compose([transforms.ToTensor(),transforms.Normalize(0.5,0.5)])
 
 
 # %%
@@ -63,7 +66,21 @@ class DeepCNN(nn.Module):
 
         TODO: setup the structure of the network
         """
-        pass
+        sequence=[]
+        prev=3
+        size=30
+        for step in arr:
+            if type(step) == int:
+                sequence.append(nn.Conv2d(prev, step, 3))
+                prev=step
+                size-=2
+            else:
+                #It must be a pool layer
+                sequence.append(nn.MaxPool2d(2))
+                size=size//2
+        self.layers=nn.ModuleList(sequence)
+
+        self.fc1 = nn.Linear(4608, 5) #size * size * prev
 
     def forward(self, x):
         """
@@ -71,7 +88,16 @@ class DeepCNN(nn.Module):
 
         TODO: setup the flow of data (tensor)
         """
-        pass
+        batch_size = x.shape[0]
+        for layer in self.layers:
+            if str(layer)[0:3] == "Con":
+                x=F.relu(layer(x))
+            else:
+                x=layer(x)
+        
+        x=x.reshape([batch_size,4608]) # flatten all dimensions except batch
+        x = self.fc1(x)
+        return x
 
 
 # %%
@@ -89,6 +115,6 @@ TODO:
 """
 
 """Add random data augmentation to the transformer"""
-aug_transformer = transforms.Compose([])
+aug_transformer = transforms.Compose([transforms.ToTensor(),transforms.RandomHorizontalFlip(),transforms.RandomAffine(5,shear=10),transforms.Normalize(0.5,0.5)])
 
 
