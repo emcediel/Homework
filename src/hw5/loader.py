@@ -36,7 +36,8 @@ def get_data_loader(train_transformer, valid_transformer, batch_size=32):
     # IF you are using a GPU, the batch size can be 100 or even 1000
     trainloader = torch.utils.data.DataLoader(train_dataset,
                                               batch_size=batch_size, shuffle=True)
+    print(trainloader.__len__())
     validloader = torch.utils.data.DataLoader(valid_dataset,
                                               batch_size=batch_size, shuffle=False)
-
+    print(validloader.__len__())
     return trainloader, validloader

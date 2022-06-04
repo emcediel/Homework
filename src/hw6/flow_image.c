@@ -47,7 +47,33 @@ void draw_line(image im, float x, float y, float dx, float dy)
 image make_integral_image(image im)
 {
     image integ = make_image(im.w, im.h, im.c);
+    
     // TODO: fill in the integral image
+    for(int k=0;k<im.c;k++)
+    {
+        for(int j=0;j<im.h;j++)
+        {
+            for(int i=0;i<im.w;i++)
+            {
+                if (i==0 && j==0)
+                {
+                    set_pixel(integ,i,j,k,get_pixel(im,i,j,k));
+                }
+                else if(i==0)
+                {
+                    set_pixel(integ,i,j,k,get_pixel(im,i,j,k)+get_pixel(integ,i,j-1,k));
+                }
+                else if(j==0)
+                {
+                    set_pixel(integ,i,j,k,get_pixel(im,i,j,k)+get_pixel(integ,i-1,j,k));
+                }
+                else
+                {
+                    set_pixel(integ,i,j,k,get_pixel(im,i,j,k)+get_pixel(integ,i-1,j,k)+get_pixel(integ,i,j-1,k)-get_pixel(integ,i-1,j-1,k));
+                }
+            }
+        }
+    }
     return integ;
 }
 
@@ -57,9 +83,84 @@ image make_integral_image(image im)
 // returns: smoothed image
 image box_filter_image(image im, int s)
 {
-    int i,j,k;
+    int offset=s/2;
     image integ = make_integral_image(im);
     image S = make_image(im.w, im.h, im.c);
+    float val;
+    for(int k=0;k<im.c;k++)
+    {
+        for(int j=0;j<im.h;j++)
+        {
+            for(int i=0;i<im.w;i++)
+            {
+               val = get_pixel(integ, i+offset ,j+offset, k) - get_pixel(integ, i+offset,j-offset -1,k) - get_pixel(integ,i-offset-1,j+offset,k) + get_pixel(integ,i-offset -1,j-offset-1,k);
+                if(i > s && j > s){
+                    set_pixel(S, i, j, k, val/(s*s));
+                }
+                else if (j< offset && i < offset)
+                {
+                    set_pixel(S, i, j, k, val/((i+offset + 1) * (j+offset + 1)));
+                }
+                else if(j< offset){
+                    set_pixel(S, i, j, k, val/((j+offset + 1) * s));
+                } 
+                else if(i < offset ){
+                    set_pixel(S, i, j, k, val/((i+offset + 1) * s));
+                } 
+                
+                
+                
+                
+                /*
+                if (i<=offset && j<=offset)
+                {
+                    summ=get_pixel(integ,i+offset,j+offset,k);
+                    val= (float)summ/(float)(s*s);
+                    printf("Sum is: %f avg is %f \n",summ,val);
+
+                    set_pixel(S,i,j,k,val);
+                }
+                else if(i<=offset)
+                {
+                    summ=get_pixel(integ,i+offset,j+offset,k)-get_pixel(integ,i+offset,j-offset-1,k);
+                    set_pixel(S,i,j,k,(float)summ/((s*s)));
+                }
+                else if(j<=offset)
+                {
+                    summ=get_pixel(integ,i+offset,j+offset,k)-get_pixel(integ,i-offset-1,j+offset,k);
+                    set_pixel(S,i,j,k,(float)summ/((s*s)));
+                }
+                
+                else if(j>im.h-offset)
+                {
+                    int max_j=im.h;
+                    summ=get_pixel(integ,i+offset,j,k)+get_pixel(integ,i-offset,j-offset,k)-get_pixel(integ,i+offset,j-offset,k)-get_pixel(integ,i-offset,j,k);
+                    set_pixel(S,i,j,k,(float)summ/(s*s));
+                }
+                else if(i>im.w-offset)
+                {
+                    summ=get_pixel(integ,i,j+offset,k)+get_pixel(integ,i-offset,j-offset,k)-get_pixel(integ,i,j-offset,k)-get_pixel(integ,i-offset,j+offset,k);
+                    set_pixel(S,i,j,k,(float)summ/(s*s));
+                }
+                else if(i==im.w-1 && j==im.h-1)
+                {
+                    summ=get_pixel(integ,i,j,k)+get_pixel(integ,i-offset,j-offset,k)-get_pixel(integ,i,j-offset,k)-get_pixel(integ,i-offset,j,k);
+                    set_pixel(S,i,j,k,(float)summ/(s*s));
+                }
+                
+                
+                else
+                { 
+                    summ=get_pixel(integ,i+offset,j+offset,k)+get_pixel(integ,i-offset-1,j-offset-1,k)-get_pixel(integ,i+offset,j-offset-1,k)-get_pixel(integ,i-offset-1,j+offset,k);
+                    set_pixel(S,i,j,k,(float)summ/(s*s));
+                }
+
+                */
+                
+            }
+        }
+    }
+
     // TODO: fill in S using the integral image.
     return S;
 }
@@ -72,7 +173,6 @@ image box_filter_image(image im, int s)
 //          3rd channel is IxIy, 4th channel is IxIt, 5th channel is IyIt.
 image time_structure_matrix(image im, image prev, int s)
 {
-    int i;
     int converted = 0;
     if(im.c == 3){
         converted = 1;
@@ -81,8 +181,29 @@ image time_structure_matrix(image im, image prev, int s)
     }
 
     // TODO: calculate gradients, structure components, and smooth them
+    image S = make_image(im.w, im.h, 5);
+    // TODO: calculate structure matrix for im.
+    image s_x=make_gx_filter();
+    image s_y=make_gy_filter();
+    image I_x=convolve_image(im, s_x, 0);
+    image I_y=convolve_image(im, s_y, 0);
+    image I_t=sub_image(im,prev);
 
-    image S;
+    // we calculate the measures
+    for (int j=0;j<I_x.h;j++)
+    {
+        for (int i=0;i<I_x.w;i++)
+        {
+            set_pixel(S,i,j,0,get_pixel(I_x,i,j,0)*get_pixel(I_x,i,j,0));
+            set_pixel(S,i,j,1,get_pixel(I_y,i,j,0)*get_pixel(I_y,i,j,0));
+            set_pixel(S,i,j,2,get_pixel(I_x,i,j,0)*get_pixel(I_y,i,j,0));
+            set_pixel(S,i,j,3,get_pixel(I_x,i,j,0)*get_pixel(I_t,i,j,0));
+            set_pixel(S,i,j,4,get_pixel(I_y,i,j,0)*get_pixel(I_t,i,j,0));
+        }
+        
+    }
+    
+    S=box_filter_image(S,s);
 
     if(converted){
         free_image(im); free_image(prev);
@@ -98,6 +219,9 @@ image velocity_image(image S, int stride)
     image v = make_image(S.w/stride, S.h/stride, 3);
     int i, j;
     matrix M = make_matrix(2,2);
+    matrix res = make_matrix(2,1);
+    matrix t = make_matrix(2,1);
+    matrix inverse;
     for(j = (stride-1)/2; j < S.h; j += stride){
         for(i = (stride-1)/2; i < S.w; i += stride){
             float Ixx = S.data[i + S.w*j + 0*S.w*S.h];
@@ -109,7 +233,22 @@ image velocity_image(image S, int stride)
             // TODO: calculate vx and vy using the flow equation
             float vx = 0;
             float vy = 0;
+            M.data[0][0] = Ixx;
+            M.data[0][1] = Ixy;
+            M.data[1][0] = Ixy;
+            M.data[1][1] = Iyy;
+            t.data[0][0] = -1.0*Ixt;
+            t.data[1][0] = -1.0*Iyt;
+            inverse = matrix_invert(M);
 
+            if (inverse.rows == 0)
+            {
+                continue;
+            }
+            
+            res=matrix_mult_matrix(inverse,t);
+            vx=res.data[0][0];
+            vy=res.data[1][0];
             set_pixel(v, i/stride, j/stride, 0, vx);
             set_pixel(v, i/stride, j/stride, 1, vy);
         }
